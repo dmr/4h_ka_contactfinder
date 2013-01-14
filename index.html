@@ -69,17 +69,22 @@
             <!-- ko if: users -->
             <ul class="media-list" data-bind="foreach: filtered_users">
                 <li class="media">
-                    <a class="pull-left" href="#">
+                    <a class="pull-left" href="#" data-bind="click: $root.navigate_to_single_view">
                         <img class="media-object" width="64" height="64"
                              data-bind="attr: {'src': avatar}" />
                     </a>
                     <div class="media-body">
-                        <h4 class="media-heading">
+                        <h4 class="media-heading" data-bind="click: $root.navigate_to_single_view">
                             <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
                         </h4>
                         <!-- ko foreach: tags -->
                             <span class="label label-info" data-bind="text: $data, click: $parent.add_tag_to_query"></span>
                         <!-- /ko -->
+
+                        <span class="pull-right">
+                            <a href="#" data-bind="click: $root.navigate_to_single_view" class="btn"><i class="icon-white icon-arrow-right"></i></a>
+                        </span>
+
                     </div>
                 </li>
             </ul>
@@ -93,6 +98,49 @@
             <p class="muted credit">Contact Finder is a <a href="http://twitter.com/#4hventureka">4h venture KA</a> project.</p>
         </div>
     </div>
+</script>
+
+<script type="text/html" id="ContactFinderSingleView">
+    <div id="wrap">
+        <div class="container">
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <a class="brand" href="#">ContactViewer</a>
+                    <div class="nav">
+                        <span class="pull-left">
+                            <a href="#" data-bind="click: $root.back_to_contactViewerTmplModel" class="btn"><i class="icon-white icon-arrow-left"></i> Back</a>
+                        </span>
+                    </div>
+                    <div class="pull-right"><a href="https://trip-app.com">Trip-App.com</a></div>
+                </div>
+            </div>
+
+            <div class="media">
+                <img class="media-object" width="64" height="64"
+                     data-bind="attr: {'src': avatar}" />
+            </div>
+
+            <h4 class="media-heading" data-bind="click: $root.navigate_to_single_view">
+                <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
+            </h4>
+
+            <!-- ko if: email --><div data-bind="text: email"></div><!-- /ko -->
+            <!-- ko if: mobile --><div data-bind="text: mobile"></div><!-- /ko -->
+            <!-- ko if: skype --><div data-bind="text: skype"></div><!-- /ko -->
+            <!-- ko if: phone --><div data-bind="text: phone"></div><!-- /ko -->
+            <!-- ko if: twitter --><div data-bind="text: twitter"></div><!-- /ko -->
+            <!-- ko if: web --><div><a data-bind="attr: {href: web}, text: web"></a></div><!-- /ko -->
+
+        </div>
+        <div id="push"></div>
+    </div>
+
+    <div id="footer">
+        <div class="container">
+            <p class="muted credit">Contact Finder is a <a href="http://twitter.com/#4hventureka">4h venture KA</a> project.</p>
+        </div>
+    </div>
+
 </script>
 
 
@@ -113,7 +161,7 @@
 
                 var res_list = self.users();
                 ko.utils.arrayForEach(filter, function(filter_crit) {
-                    if (filter_crit) { 
+                    if (filter_crit) {
                         res_list = ko.utils.arrayFilter(self.users(), function(item) {
                             if (item.first_name.toLowerCase().indexOf(filter_crit) != -1) {
                                 return true;
@@ -133,7 +181,6 @@
                 return self.users();
             }
         });
-
         backend.get_user_list()
         .done(function(resp) {
             ko.utils.arrayForEach(resp, function(user) {
@@ -228,16 +275,29 @@
     function ViewModel(backend) {
         var self = this;
 
+        self.navigate_to_single_view = function(user, evt) {
+            self.tmpl({
+                name: 'ContactFinderSingleView',
+                data: user
+            });
+        };
+        self.back_to_contactViewerTmplModel = function(_, evt) {
+            self.tmpl(self.contactViewerTmplModel());
+        };
+
         self.tmpl = ko.observable();
         self.logged_in_username = ko.observable();
+
+        self.contactViewerTmplModel = ko.observable();
 
         backend.get_username()
         .done(function(resp) {
             self.logged_in_username(resp.username);
-            self.tmpl({
+            self.contactViewerTmplModel({
                 name: 'contactViewerTmpl',
                 data: new ContactViewerTmpl(backend)
             });
+            self.tmpl(self.contactViewerTmplModel());
         }).error(function(resp) {
             if (resp.status == 401) { // "UNAUTHORIZED"
                 self.tmpl({
