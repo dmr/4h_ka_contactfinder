@@ -54,7 +54,53 @@
 
 </script>
 <script id="contactViewerTmpl" type="text/html">
-    ContactViewer
+    <div id="wrap">
+        <div class="container">
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <a class="brand" href="#">ContactViewer</a>
+                    <div class="nav">
+                        <form class="navbar-search pull-left">
+                        <input type="text" class="search-query" placeholder="Search" data-bind="value: query, valueUpdate: 'keyup'">
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ko ifnot: users().length -->
+            <div>Loading...</div>
+            <!-- /ko -->
+
+            <!-- ko if: users -->
+            <ul class="media-list" data-bind="foreach: filtered_users">
+                <li class="media">
+                    <a class="pull-left" href="#">
+                        <img class="media-object" width="64" height="64"
+                             data-bind="attr: {'src': 'https://trip-app.com'+avatar}" />
+                    </a>
+                    <div class="media-body">
+                        <h4 class="media-heading">
+                            <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
+                        </h4>
+                        <!-- ko if: email --><div data-bind="text: email"></div><!-- /ko -->
+                        <!-- ko if: mobile --><div data-bind="text: mobile"></div><!-- /ko -->
+                        <!-- ko if: skype --><div data-bind="text: skype"></div><!-- /ko -->
+                        <!-- ko if: phone --><div data-bind="text: phone"></div><!-- /ko -->
+                        <!-- ko if: twitter --><div data-bind="text: twitter"></div><!-- /ko -->
+                        <!-- ko if: web --><div><a data-bind="attr: {href: web}, text: web"></a></div><!-- /ko -->
+                    </div>
+                </li>
+            </ul>
+            <!-- /ko -->
+        </div>
+        <div id="push"></div>
+    </div>
+
+    <div id="footer">
+        <div class="container">
+            <p class="muted credit">Contact Finder is a <a href="http://twitter.com/#4hventureka">4h venture KA</a> project.</p>
+        </div>
+    </div>
 </script>
 
 
@@ -65,6 +111,38 @@
 
 
 <script type="text/javascript">
+    function ContactViewerTmpl(backend) {
+        var self = this;
+
+        self.users = ko.observableArray();
+
+        self.query = ko.observable();
+        self.query.subscribe(function() {
+        });
+
+        self.filtered_users = ko.computed(function() {
+            if(self.query()) {
+                var filter = self.query().toLowerCase();
+                return ko.utils.arrayFilter(self.users(), function(item) {
+                    return item.first_name.toLowerCase().indexOf(filter) != -1;
+                });
+            } else {
+                return self.users();
+            }
+        });
+
+        backend.get_user_list()
+        .done(function(resp) {
+            self.users(resp);
+            /*ko.utils.arrayForEach(resp, function(user) {
+                if (user.fax) {
+                    console.log(user.email, user.fax);
+                }
+            });*/
+        });
+    }
+
+
     function Backend() {
         var api_base_url = 'https://trip-app.com/api/';
 
@@ -85,13 +163,6 @@
 
         var self = this;
         $.extend(self, {
-            login: function(email, password) {
-                return do_post('_session/', {email:email, password:password});
-            },
-            logout: function() {
-                return do_delete('_session/');
-            },
-
             get_username: function() {
                 return do_get('_session/');
             },
@@ -146,7 +217,7 @@
             self.logged_in_username(resp.username);
             self.tmpl({
                 name: 'contactViewerTmpl',
-                data: {}
+                data: new ContactViewerTmpl(backend)
             });
         }).error(function(resp) {
             if (resp.status == 401) { // "UNAUTHORIZED"
