@@ -14,10 +14,10 @@
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.0.js"></script>
     <script type="text/javascript" src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
     <style>
-        li { background: #f0f0f0; padding: 5px;}
-        li:nth-child(odd) { background: #fff; }
+        li.liste { background: #f0f0f0; padding: 5px;}
+        li:nth-child(odd).liste { background: #fff; }
 
-        .label {cursor: pointer;}
+        .clickable-label {cursor: pointer;}
     </style>
 </head><body>
 
@@ -68,7 +68,7 @@
 
             <!-- ko if: users -->
             <ul class="media-list" data-bind="foreach: filtered_users">
-                <li class="media">
+                <li class="media liste">
                     <a class="pull-left" href="#" data-bind="click: $root.navigate_to_single_view">
                         <img class="media-object" width="64" height="64"
                              data-bind="attr: {'src': avatar}" />
@@ -78,7 +78,7 @@
                             <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
                         </h4>
                         <!-- ko foreach: tags -->
-                            <span class="label label-info" data-bind="text: $data, click: $parent.add_tag_to_query"></span>
+                            <span class="clickable-label label label-info" data-bind="text: $data, click: $parent.add_tag_to_query"></span>
                         <!-- /ko -->
 
                         <span class="pull-right">
@@ -115,27 +115,83 @@
                 </div>
             </div>
 
-            <ul class="media-list">
-                <li class="media">
+            <div class="media" style="padding: 5px;">
+                <a class="pull-left" href="#">
                     <img class="media-object" width="64" height="64"
-                             data-bind="attr: {'src': avatar}" />
-                    <div class="media-body">
-                        <h4 class="media-heading">
-                            <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
-                        </h4>
-                        <!-- ko foreach: tags -->
-                            <span class="label label-info"></span>
-                        <!-- /ko -->
+                         data-bind="attr: {'src': avatar}" />
+                </a>
+                <div class="media-body">
+                    <h4 class="media-heading">
+                        <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
+                    </h4>
 
-                        <!-- ko if: email --><div data-bind="text: email"></div><!-- /ko -->
-                        <!-- ko if: mobile --><div data-bind="text: mobile"></div><!-- /ko -->
-                        <!-- ko if: skype --><div data-bind="text: skype"></div><!-- /ko -->
-                        <!-- ko if: phone --><div data-bind="text: phone"></div><!-- /ko -->
-                        <!-- ko if: twitter --><a data-bind="attr: {href: 'http://twitter.com/'+twitter}, text: '@'+twitter"></a><!-- /ko -->
-                        <!-- ko if: web --><div><a data-bind="attr: {href: web}, text: web"></a></div><!-- /ko -->
+                </div>
+            </div>
+
+            <div>
+                <hr />
+                <ul data-bind="foreach: tags">
+                    <li class="label label-info" data-bind="text: $data"></li>
+                </ul>
+                <hr />
+
+
+                <form class="form-horizontal">
+                    <!-- ko if: twitter -->
+                    <div class="control-group">
+                        <label class="control-label" for="inputEmail">Twitter</label>
+                        <div class="controls">
+                            <a style="padding-top:5px;" data-bind="attr: {href: 'http://twitter.com/'+twitter}, text: '@'+twitter"></a>
+                        </div>
                     </div>
-                </li>
-            </ul>
+                    <!-- /ko -->
+
+                    <!-- ko if: web -->
+                    <div class="control-group">
+                        <label class="control-label" for="inputEmail">Web</label>
+                        <div class="controls">
+                            <a style="padding-top:10px;" data-bind="attr: {href: web}, text: web"></a>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: email -->
+                    <div class="control-group">
+                        <label class="control-label" for="inputEmail">Email</label>
+                        <div class="controls">
+                            <div style="padding-top:5px;" data-bind="text: email"></div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: phone -->
+                    <div class="control-group">
+                        <label class="control-label" for="inputEmail">Phone</label>
+                        <div class="controls">
+                            <div style="padding-top:5px;" data-bind="text: phone"></div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: mobile -->
+                    <div class="control-group">
+                        <label class="control-label" for="inputEmail">Mobile</label>
+                        <div class="controls">
+                            <div style="padding-top:5px;" data-bind="text: mobile"></div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: skype -->
+                    <div class="control-group">
+                        <label class="control-label" for="inputEmail">Skype</label>
+                        <div class="controls">
+                            <div style="padding-top:5px;" data-bind="text: skype"></div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+                </form>
+            </div>
         </div>
         <div id="push"></div>
     </div>
