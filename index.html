@@ -161,12 +161,12 @@
                             user.tags.push(new_tag);
                         }
                     });
+                    user.add_tag_to_query = function(tag, evt) {
+                        console.log(tag, evt);
+                        self.query(self.query() + ' ' + tag);
+                    };
+                    self.users.push(user);
                 }
-                user.add_tag_to_query = function(tag, evt) {
-                    console.log(tag, evt);
-                    self.query(self.query() + ' ' + tag);
-                };
-                self.users.push(user);
             });
         });
     }
