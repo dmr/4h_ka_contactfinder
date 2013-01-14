@@ -124,7 +124,20 @@
             if(self.query()) {
                 var filter = self.query().toLowerCase();
                 return ko.utils.arrayFilter(self.users(), function(item) {
-                    return item.first_name.toLowerCase().indexOf(filter) != -1;
+                    if (item.first_name.toLowerCase().indexOf(filter) != -1) {
+                        return true;
+                    }
+
+                    if (item.last_name.toLowerCase().indexOf(filter) != -1) {
+                        return true;
+                    }
+
+                    if (item.fax && item.fax.toLowerCase().indexOf(filter) != -1) {
+                        return true;
+                    }
+
+                    return false;
+
                 });
             } else {
                 return self.users();
