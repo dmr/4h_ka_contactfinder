@@ -2,29 +2,34 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
     <title>Contact Finder</title>
-
-    <meta name="description" content="Trip is a collaboration tool for teams.">
-
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style"
           content="default" /> <!-- default, black and black-translucent -->
-
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome.css" rel="stylesheet">
-
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.0.js"></script>
-    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
-
+    <script type="text/javascript" src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
     <style>
         li { background: #f0f0f0; padding: 5px;}
         li:nth-child(odd) { background: #fff; }
-    </style>
 
+
+        .tags {
+            margin: 0px;
+        }
+        .tags li {
+            display: inline;
+            background: #fff;
+            padding: 1px;
+            border: 1px solid blue;
+        }
+        .tags li:nth-child(odd) { background: #fff; }
+
+    </style>
 </head><body>
 
 
@@ -76,18 +81,15 @@
                 <li class="media">
                     <a class="pull-left" href="#">
                         <img class="media-object" width="64" height="64"
-                             data-bind="attr: {'src': 'https://trip-app.com'+avatar}" />
+                             data-bind="attr: {'src': avatar}" />
                     </a>
                     <div class="media-body">
                         <h4 class="media-heading">
                             <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
                         </h4>
-                        <!-- ko if: email --><div data-bind="text: email"></div><!-- /ko -->
-                        <!-- ko if: mobile --><div data-bind="text: mobile"></div><!-- /ko -->
-                        <!-- ko if: skype --><div data-bind="text: skype"></div><!-- /ko -->
-                        <!-- ko if: phone --><div data-bind="text: phone"></div><!-- /ko -->
-                        <!-- ko if: twitter --><div data-bind="text: twitter"></div><!-- /ko -->
-                        <!-- ko if: web --><div><a data-bind="attr: {href: web}, text: web"></a></div><!-- /ko -->
+                        <ul class="tags" data-bind="foreach: tags">
+                            <li data-bind="text: $data, click: $parent.add_tag_to_query"></li>
+                        </ul>
                     </div>
                 </li>
             </ul>
@@ -113,29 +115,22 @@
 <script type="text/javascript">
     function ContactViewerTmpl(backend) {
         var self = this;
-
         self.users = ko.observableArray();
-
-        self.query = ko.observable();
-        self.query.subscribe(function() {
-        });
-
+        self.query = ko.observable('');
         self.filtered_users = ko.computed(function() {
             if(self.query()) {
                 var filter = self.query().toLowerCase();
+
                 return ko.utils.arrayFilter(self.users(), function(item) {
                     if (item.first_name.toLowerCase().indexOf(filter) != -1) {
                         return true;
                     }
-
                     if (item.last_name.toLowerCase().indexOf(filter) != -1) {
                         return true;
                     }
-
                     if (item.fax && item.fax.toLowerCase().indexOf(filter) != -1) {
                         return true;
                     }
-
                     return false;
 
                 });
@@ -146,12 +141,28 @@
 
         backend.get_user_list()
         .done(function(resp) {
-            self.users(resp);
-            /*ko.utils.arrayForEach(resp, function(user) {
-                if (user.fax) {
-                    console.log(user.email, user.fax);
+            ko.utils.arrayForEach(resp, function(user) {
+                if(!user.avatar) {
+                    user.avatar = '/avatar_male_dark_on_clear_with_questionsmark_182x182.png';
+                } else {
+                    user.avatar = 'https://trip-app.com'+user.avatar;
                 }
-            });*/
+                user.tags = [];
+                if (user.fax) {
+                    var tags = user.fax.split(',');
+                    ko.utils.arrayForEach(tags, function(tag) {
+                        var new_tag = tag.trim();
+                        if (new_tag) {
+                            user.tags.push(new_tag);
+                        }
+                    });
+                }
+                user.add_tag_to_query = function(tag, evt) {
+                    console.log(tag, evt);
+                    self.query(self.query() + ' ' + tag);
+                };
+                self.users.push(user);
+            });
         });
     }
 
