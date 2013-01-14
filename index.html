@@ -131,7 +131,7 @@
                         <!-- ko if: mobile --><div data-bind="text: mobile"></div><!-- /ko -->
                         <!-- ko if: skype --><div data-bind="text: skype"></div><!-- /ko -->
                         <!-- ko if: phone --><div data-bind="text: phone"></div><!-- /ko -->
-                        <!-- ko if: twitter --><div data-bind="text: twitter"></div><!-- /ko -->
+                        <!-- ko if: twitter --><a data-bind="attr: {href: 'http://twitter.com/'+twitter}, text: '@'+twitter"></a><!-- /ko -->
                         <!-- ko if: web --><div><a data-bind="attr: {href: web}, text: web"></a></div><!-- /ko -->
                     </div>
                 </li>
