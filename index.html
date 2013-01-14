@@ -119,21 +119,26 @@
         self.query = ko.observable('');
         self.filtered_users = ko.computed(function() {
             if(self.query()) {
-                var filter = self.query().toLowerCase();
+                var filter = self.query().toLowerCase().split(" ");
 
-                return ko.utils.arrayFilter(self.users(), function(item) {
-                    if (item.first_name.toLowerCase().indexOf(filter) != -1) {
-                        return true;
+                var res_list = self.users();
+                ko.utils.arrayForEach(filter, function(filter_crit) {
+                    if (filter_crit) { 
+                        res_list = ko.utils.arrayFilter(self.users(), function(item) {
+                            if (item.first_name.toLowerCase().indexOf(filter_crit) != -1) {
+                                return true;
+                            }
+                            if (item.last_name.toLowerCase().indexOf(filter_crit) != -1) {
+                                return true;
+                            }
+                            if (item.fax && item.fax.toLowerCase().indexOf(filter_crit) != -1) {
+                                return true;
+                            }
+                            return false;
+                        });
                     }
-                    if (item.last_name.toLowerCase().indexOf(filter) != -1) {
-                        return true;
-                    }
-                    if (item.fax && item.fax.toLowerCase().indexOf(filter) != -1) {
-                        return true;
-                    }
-                    return false;
-
                 });
+                return res_list;
             } else {
                 return self.users();
             }
