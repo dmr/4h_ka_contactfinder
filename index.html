@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Contact Finder</title>
+
+    <meta name="description" content="Trip is a collaboration tool for teams.">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="default" /> <!-- default, black and black-translucent -->
+
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <link rel="shortcut icon" href="/static/img/favicon.ico">
+    <link rel="apple-touch-icon" href="/static/img/apple-57x57.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/static/img/apple-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/static/img/apple-114x114.png">
+
+</head><body>
+
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.0.js"></script>
+
+
+<script id="login" type="text/html">
+    Login required
+</script>
+<script id="contactViewerTmpl" type="text/html">
+    ContactViewer
+</script>
+
+
+<!-- ko if: tmpl -->
+<!-- ko template: tmpl -->
+<!-- /ko -->
+<!-- /ko -->
+
+
+<script type="text/javascript">
+    function Backend() {
+        var api_base_url = 'https://trip-app.com/api/';
+
+        var do_request = function(method, url, data) {
+            var params = {
+                url: api_base_url+url,
+                data: data,
+                dataType: "json",
+                type: method,
+                crossDomain: true,
+                xhrFields:{
+                    withCredentials:true
+                }
+            };
+            return $.ajax(params);
+        };
+        var do_get = do_request.bind({}, "get");
+
+        var self = this;
+        $.extend(self, {
+            login: function(email, password) {
+                return do_post('_session/', {email:email, password:password});
+            },
+            logout: function() {
+                return do_delete('_session/');
+            },
+
+            get_username: function() {
+                return do_get('_session/');
+            },
+
+            get_user_list: function() {
+                return do_get('user/');
+            },
+            get_network_list: function() {
+                return do_get('network/');
+            },
+            get_group_list: function() {
+                return do_get('group/');
+            },
+
+            search: function(query_str) {
+                return do_get('search/', {'q':query_str});
+            }
+        });
+
+        self.init = function() {
+            self.tokenXhr = $.get(api_base_url+'_token/', {async:false})
+            .done(function(resp) {
+                var CSRF_TOKEN_FROM_SERVER = resp.token;
+
+                var setCookie = function(c_name, value, exdays) {
+                    var exdate=new Date();
+                    exdate.setDate(exdate.getDate() + exdays);
+                    document.cookie = c_name + "=" + value +
+                            "; expires="+exdate.toUTCString() + "; path=/";
+                };
+
+                // TODO: change handling, but it works for now...
+                // http://www.djangoproject.com/weblog/2011/feb/08/security/
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", CSRF_TOKEN_FROM_SERVER);
+                    }
+                });
+                setCookie("csrftoken", CSRF_TOKEN_FROM_SERVER, 5);
+            });
+        };
+    }
+
+    function ViewModel(backend) {
+        var self = this;
+
+        self.tmpl = ko.observable();
+        self.logged_in_username = ko.observable();
+
+        backend.get_username()
+        .done(function(resp) {
+            self.logged_in_username(resp.username);
+            self.tmpl({
+                name: 'contactViewerTmpl',
+                data: {}
+            });
+        }).error(function(resp) {
+            if (resp.status == 401) { // "UNAUTHORIZED"
+                self.tmpl({
+                    name: 'login',
+                    data: {}
+                });
+            }
+        });
+    }
+
+    var VM = null;
+    $(document).ready(function() {
+        var backend = new Backend();
+        backend.init();
+        var viewModel = new ViewModel(backend);
+        ko.applyBindings(viewModel);
+        VM = viewModel;
+    });
+</script>
+
+</body></html>
