@@ -115,22 +115,27 @@
                 </div>
             </div>
 
-            <div class="media">
-                <img class="media-object" width="64" height="64"
-                     data-bind="attr: {'src': avatar}" />
-            </div>
+            <ul class="media-list">
+                <li class="media">
+                    <img class="media-object" width="64" height="64"
+                             data-bind="attr: {'src': avatar}" />
+                    <div class="media-body">
+                        <h4 class="media-heading">
+                            <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
+                        </h4>
+                        <!-- ko foreach: tags -->
+                            <span class="label label-info"></span>
+                        <!-- /ko -->
 
-            <h4 class="media-heading" data-bind="click: $root.navigate_to_single_view">
-                <span data-bind="text: first_name"></span>&nbsp;<span data-bind="text: last_name"></span>
-            </h4>
-
-            <!-- ko if: email --><div data-bind="text: email"></div><!-- /ko -->
-            <!-- ko if: mobile --><div data-bind="text: mobile"></div><!-- /ko -->
-            <!-- ko if: skype --><div data-bind="text: skype"></div><!-- /ko -->
-            <!-- ko if: phone --><div data-bind="text: phone"></div><!-- /ko -->
-            <!-- ko if: twitter --><div data-bind="text: twitter"></div><!-- /ko -->
-            <!-- ko if: web --><div><a data-bind="attr: {href: web}, text: web"></a></div><!-- /ko -->
-
+                        <!-- ko if: email --><div data-bind="text: email"></div><!-- /ko -->
+                        <!-- ko if: mobile --><div data-bind="text: mobile"></div><!-- /ko -->
+                        <!-- ko if: skype --><div data-bind="text: skype"></div><!-- /ko -->
+                        <!-- ko if: phone --><div data-bind="text: phone"></div><!-- /ko -->
+                        <!-- ko if: twitter --><div data-bind="text: twitter"></div><!-- /ko -->
+                        <!-- ko if: web --><div><a data-bind="attr: {href: web}, text: web"></a></div><!-- /ko -->
+                    </div>
+                </li>
+            </ul>
         </div>
         <div id="push"></div>
     </div>
