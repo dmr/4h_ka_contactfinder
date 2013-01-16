@@ -247,8 +247,6 @@
             ko.utils.arrayForEach(resp, function(user) {
                 if(!user.avatar) {
                     user.avatar = '/avatar_male_dark_on_clear_with_questionsmark_182x182.png';
-                } else {
-                    user.avatar = 'https://trip-app.com'+user.avatar;
                 }
                 user.tags = [];
                 if (user.fax) {
